@@ -35,22 +35,20 @@ H = 1/2*[0 1/4 0;
     1/4 1 1/4;
     0 1/4 0]; 
 
-f1 = f2;
-
 % 中值滤波
 for i = 2:r-1
     for j = 2:c-1
-        temp = double(f(i-1:i+1, j-1:j+1));
-        f1(i, j) = sum( sum(H.*temp));
-        temp = sort(temp(:));
-        f2(i, j) = temp(5);
+        temp = f(i-1:i+1, j-1:j+1);
+        f2(i, j) = sum( sum(H.*temp));
+        %temp = sort(temp(:));
+        %f2(i, j) = temp(5);
     end
 end
 
 
 figure
-    subplot(221),imshow(f1),title('原图像');
-    subplot(222),imhist(f1),title('直方图');
+    subplot(221),imshow(f),title('原图像');
+    subplot(222),imhist(f),title('直方图');
     subplot(223),imshow(f2),title('原图像');
     subplot(224),imhist(f2),title('直方图');
 
