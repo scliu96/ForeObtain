@@ -14,47 +14,51 @@ output_array = cell(N, 1);
 background = input_array{1};
 background = imsubtract(background, background);
 [row,column] = size(background);
+disk1 = strel('disk', 5);
+disk2 = strel('disk', 2);
+threhold = 15;
 
-disk = strel('disk', 3);
+mid_array = cell(50,1);
+for k = 1:N
+    mid_array{k} = medfilt2(input_array{k}, [5,5]);
+end
 
-
-f = input_array{10};
+bgmode = background;
 for i = 1:row
     for j = 1:column
-        if (abs(f(i, j) - background(i, j)) < 20)
-            foreground(i, j) = 0;
-        else
-            foreground(i, j) = 255;
+        pixs = linspace(0, 0, N);
+        for k = 1:N
+            pixs(k) = mid_array{k}(i, j);
         end
-    end
-end  
-
-figure
-    subplot(221),imshow(f),title('Ô­Í¼Ïñ');
-    subplot(222),imshow(foreground),title('fore');
-    subplot(223),imshow(f1),title('imrode');
-    subplot(224),imshow(imclose(foreground, disk)),title('imdilate');
-    
-    
-
-%{
-H = 1/2*[0 1/4 0;
-    1/4 1 1/4;
-    0 1/4 0]; 
-
-in = foreground;
-out = foreground;
-% ÖÐÖµÂË²¨
-for i = 2:r-1
-    for j = 2:c-1
-        temp = double(in(i-1:i+1, j-1:j+1));
-        %f1(i, j) = sum( sum(H.*temp));
-        temp = sort(temp(:));
-        out(i, j) = temp(5);
+        bgmode(i, j) = mode(pixs);
     end
 end
+close_mode = imclose(bgmode, disk1);
+
+for k = 1:N
+    select_img = mid_array{k};
+    close_img = imclose(select_img, disk1);
+    judge = background;
+    for i = 1:row
+        for j = 1:column
+            if abs(double(close_img(i, j)) - double(close_mode(i, j))) < threhold
+                judge(i, j) = 255;
+            else 
+                judge(i, j) = 0;
+            end
+        end
+    end
+    judge = imclose(judge, disk2);      
     
-% figure,imshow(input_array{1});
-%}
+    output_array{k} = input_array{k};
+    for i = 1:row
+        for j = 1:column
+            if judge(i, j) == 255
+                output_array{k}(i, j) = 0;
+            end
+        end
+    end    
+end
+
 end
 
